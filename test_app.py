@@ -46,3 +46,21 @@ class ProjetoTest(unittest.TestCase):
     def test_rejeita_string_como_booleano(self):
         with self.assertRaises(ValueError):
             run(dict(origem="A", destino="B", modo="carro", alternativas=[dict(nome="X", paradas=[], evitar_pedagios="false")]))
+
+    def test_modo_por_alternativa_substitui_padrao(self):
+        from urllib.parse import parse_qs, urlparse
+        data = dict(origem="Natal, RN", destino="Parnamirim, RN", modo="carro", alternativas=[
+            dict(nome="Pedal", modo="bicicleta", paradas=[]),
+            dict(nome="Caminhada", modo="a-pe", paradas=[]),
+            dict(nome="Carro", paradas=[]),
+        ])
+        result = run(data)
+        modes = [parse_qs(urlparse(route["google_maps"]).query)["travelmode"][0]
+                 for route in result["rotas"]]
+        self.assertEqual(modes, ["bicycling", "walking", "driving"])
+
+    def test_modo_desconhecido_na_alternativa_e_rejeitado(self):
+        data = dict(origem="Natal", destino="Parnamirim", modo="carro",
+                    alternativas=[dict(nome="Inválida", modo="teleporte", paradas=[])])
+        with self.assertRaisesRegex(ValueError, "Modo desconhecido"):
+            run(data)
