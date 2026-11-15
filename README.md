@@ -13,7 +13,19 @@ python -m unittest -v
 
 ## Uso
 
-Cada alternativa pode ter até três paradas nomeadas, na ordem de passagem. Escolha o modo `carro`, `a-pe`, `bicicleta` ou `onibus`. O Google Maps permite usar a preferência de evitar pedágios onde aplicável.
+Cada alternativa pode ter até três paradas nomeadas, na ordem de passagem. Escolha o modo padrão `carro`, `a-pe`, `bicicleta` ou `onibus` em `modo`. Para comparar meios de transporte no mesmo relatório, informe `modo` em uma alternativa; as demais continuam usando o modo padrão. Um modo desconhecido é rejeitado. O Google Maps permite usar a preferência de evitar pedágios onde aplicável.
+
+```json
+{
+  "origem": "Natal, RN",
+  "destino": "Parnamirim, RN",
+  "modo": "carro",
+  "alternativas": [
+    {"nome": "Pedal", "modo": "bicicleta", "paradas": []},
+    {"nome": "Carro", "paradas": []}
+  ]
+}
+```
 
 ## Google Maps
 
