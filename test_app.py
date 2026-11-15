@@ -15,6 +15,22 @@ class ProjetoTest(unittest.TestCase):
         result = run(data)
         self.assertEqual(result['quantidade'], 2)
 
+    def test_modo_explicito_dispensa_modo_padrao(self):
+        data = {"origem": "Natal", "destino": "Alecrim", "alternativas": [
+            {"nome": "Bike", "modo": "bicicleta", "paradas": []},
+            {"nome": "A pé", "modo": "a-pe", "paradas": []},
+        ]}
+        links = run(data)["rotas"]
+        self.assertIn("travelmode=bicycling", links[0]["google_maps"])
+        self.assertIn("travelmode=walking", links[1]["google_maps"])
+
+    def test_cada_rota_precisa_de_um_modo_explicito_ou_padrao(self):
+        data = {"origem": "Natal", "destino": "Alecrim", "alternativas": [
+            {"nome": "Sem modo", "paradas": []},
+        ]}
+        with self.assertRaises(ValueError):
+            run(data)
+
     def test_cli_com_exemplo(self):
         result = subprocess.run(
             [sys.executable, str(ROOT / "app.py"), str(ROOT / "exemplo.json")],

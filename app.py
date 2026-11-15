@@ -41,13 +41,19 @@ def rota(origem, destino, modo="carro", paradas=(), evitar_pedagios=False):
 
 
 def run(data):
+    if not isinstance(data, dict):
+        raise ValueError("A entrada deve ser um objeto JSON.")
+    alternativas = data["alternativas"]
+    if not isinstance(alternativas, list) or any(not isinstance(item, dict) for item in alternativas):
+        raise ValueError("O campo alternativas deve ser uma lista de objetos.")
+    modo_padrao = data.get("modo")
     links = []
-    for opcao in data["alternativas"]:
+    for opcao in alternativas:
         evitar = opcao.get("evitar_pedagios", False)
         if type(evitar) is not bool:
             raise ValueError("evitar_pedagios precisa ser verdadeiro ou falso.")
-        url = rota(data["origem"], data["destino"], opcao.get("modo", data["modo"]),
-                   textos(opcao["paradas"]), evitar)
+        modo = texto(opcao.get("modo", modo_padrao))
+        url = rota(data["origem"], data["destino"], modo, textos(opcao["paradas"]), evitar)
         links.append({"nome": texto(opcao["nome"]), "google_maps": url})
     if not links:
         raise ValueError("Cadastre pelo menos uma rota.")
