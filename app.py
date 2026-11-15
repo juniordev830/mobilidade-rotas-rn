@@ -46,7 +46,7 @@ def run(data):
         evitar = opcao.get("evitar_pedagios", False)
         if type(evitar) is not bool:
             raise ValueError("evitar_pedagios precisa ser verdadeiro ou falso.")
-        url = rota(data["origem"], data["destino"], data["modo"],
+        url = rota(data["origem"], data["destino"], opcao.get("modo", data["modo"]),
                    textos(opcao["paradas"]), evitar)
         links.append({"nome": texto(opcao["nome"]), "google_maps": url})
     if not links:
