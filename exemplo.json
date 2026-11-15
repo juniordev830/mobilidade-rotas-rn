@@ -1,0 +1,18 @@
+{
+  "origem": "Centro, São Gonçalo do Amarante, RN",
+  "destino": "Alecrim, Natal, RN",
+  "modo": "carro",
+  "alternativas": [
+    {
+      "nome": "Direta",
+      "paradas": []
+    },
+    {
+      "nome": "Via Zona Norte",
+      "paradas": [
+        "Igapó, Natal, RN"
+      ],
+      "evitar_pedagios": true
+    }
+  ]
+}
