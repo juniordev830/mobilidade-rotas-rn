@@ -44,17 +44,25 @@ def run(data):
     if not isinstance(data, dict):
         raise ValueError("A entrada deve ser um objeto JSON.")
     alternativas = data["alternativas"]
-    if not isinstance(alternativas, list) or any(not isinstance(item, dict) for item in alternativas):
-        raise ValueError("O campo alternativas deve ser uma lista de objetos.")
+    if not isinstance(alternativas, list) or not 1 <= len(alternativas) <= 25 or any(
+        not isinstance(item, dict) for item in alternativas
+    ):
+        raise ValueError("Informe entre 1 e 25 alternativas, cada uma como objeto.")
     modo_padrao = data.get("modo")
     links = []
+    nomes = set()
     for opcao in alternativas:
+        nome = texto(opcao["nome"])
+        chave = nome.casefold()
+        if chave in nomes:
+            raise ValueError(f"Nome de alternativa repetido: {nome}.")
+        nomes.add(chave)
         evitar = opcao.get("evitar_pedagios", False)
         if type(evitar) is not bool:
             raise ValueError("evitar_pedagios precisa ser verdadeiro ou falso.")
         modo = texto(opcao.get("modo", modo_padrao))
         url = rota(data["origem"], data["destino"], modo, textos(opcao["paradas"]), evitar)
-        links.append({"nome": texto(opcao["nome"]), "google_maps": url})
+        links.append({"nome": nome, "google_maps": url})
     if not links:
         raise ValueError("Cadastre pelo menos uma rota.")
     return {"rotas": links, "quantidade": len(links)}
