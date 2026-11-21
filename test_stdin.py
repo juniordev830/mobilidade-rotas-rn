@@ -24,3 +24,18 @@ class StdinInputTest(unittest.TestCase):
                 self.assertEqual(result.returncode, 2)
                 self.assertEqual(result.stdout, b"")
                 self.assertNotIn(b"Traceback", result.stderr)
+
+    def test_rejects_json_larger_than_one_megabyte_from_file_and_stdin(self):
+        from tempfile import TemporaryDirectory
+        payload = b" " * 1_000_001
+        script = Path(__file__).with_name("app.py")
+        with TemporaryDirectory() as directory:
+            filename = Path(directory) / "large.json"
+            filename.write_bytes(payload)
+            for args, stdin in (([str(filename)], None), (["-"], payload)):
+                with self.subTest(args=args):
+                    result = subprocess.run([sys.executable, str(script), *args],
+                                            input=stdin, capture_output=True)
+                    self.assertEqual(result.returncode, 2)
+                    self.assertIn(b"1 MB", result.stderr)
+                    self.assertNotIn(b"Traceback", result.stderr)

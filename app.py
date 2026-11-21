@@ -44,17 +44,25 @@ def run(data):
     if not isinstance(data, dict):
         raise ValueError("A entrada deve ser um objeto JSON.")
     alternativas = data["alternativas"]
-    if not isinstance(alternativas, list) or any(not isinstance(item, dict) for item in alternativas):
-        raise ValueError("O campo alternativas deve ser uma lista de objetos.")
+    if not isinstance(alternativas, list) or not 1 <= len(alternativas) <= 25 or any(
+        not isinstance(item, dict) for item in alternativas
+    ):
+        raise ValueError("Informe entre 1 e 25 alternativas, cada uma como objeto.")
     modo_padrao = data.get("modo")
     links = []
+    nomes = set()
     for opcao in alternativas:
+        nome = texto(opcao["nome"])
+        chave = nome.casefold()
+        if chave in nomes:
+            raise ValueError(f"Nome de alternativa repetido: {nome}.")
+        nomes.add(chave)
         evitar = opcao.get("evitar_pedagios", False)
         if type(evitar) is not bool:
             raise ValueError("evitar_pedagios precisa ser verdadeiro ou falso.")
         modo = texto(opcao.get("modo", modo_padrao))
         url = rota(data["origem"], data["destino"], modo, textos(opcao["paradas"]), evitar)
-        links.append({"nome": texto(opcao["nome"]), "google_maps": url})
+        links.append({"nome": nome, "google_maps": url})
     if not links:
         raise ValueError("Cadastre pelo menos uma rota.")
     return {"rotas": links, "quantidade": len(links)}
@@ -66,6 +74,8 @@ import sys
 from relatorio_csv import escrever_csv
 import json
 from pathlib import Path
+
+MAX_JSON_BYTES = 1_000_000
 
 
 def objeto_sem_campos_repetidos(pares):
@@ -88,19 +98,22 @@ def main():
     args = parser.parse_args()
 
     try:
-        entrada = nullcontext(sys.stdin.buffer) if args.entrada == "-" else Path(args.entrada).open(encoding="utf-8-sig")
+        entrada = nullcontext(sys.stdin.buffer) if args.entrada == "-" else Path(args.entrada).open("rb")
         with entrada as source:
-            data = json.load(
-                source,
-                object_pairs_hook=objeto_sem_campos_repetidos,
-                parse_constant=rejeitar_constante_json,
-            )
+            raw = source.read(MAX_JSON_BYTES + 1)
+        if len(raw) > MAX_JSON_BYTES:
+            raise ValueError("JSON excede o limite de 1 MB.")
+        data = json.loads(
+            raw,
+            object_pairs_hook=objeto_sem_campos_repetidos,
+            parse_constant=rejeitar_constante_json,
+        )
         if not isinstance(data, dict):
             raise ValueError("A entrada deve ser um objeto JSON.")
         result = run(data)
     except RecursionError:
         parser.exit(2, "O JSON tem níveis de aninhamento demais.\n")
-    except (KeyError, TypeError, ValueError, OSError) as exc:
+    except (KeyError, TypeError, ValueError, UnicodeError, OSError) as exc:
         parser.exit(2, f"Erro nos dados ou na execução: {exc}\n")
 
     sys.stdout.reconfigure(encoding="utf-8", newline="\n")

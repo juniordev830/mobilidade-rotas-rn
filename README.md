@@ -44,3 +44,7 @@ Também é possível encadear a ferramenta com outro comando usando `-` como ent
 ```bash
 cat exemplo.json | python app.py -
 ```
+
+As alternativas devem ter nomes distintos (ignorando maiúsculas/minúsculas e espaços nas bordas). O programa aceita de 1 a 25 opções por consulta e preserva a ordem informada.
+
+Arquivos e entrada padrão JSON são limitados a 1 MB (1.000.000 bytes). Entradas maiores são rejeitadas antes da decodificação e da geração de URLs.

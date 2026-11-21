@@ -16,4 +16,26 @@ class RouteOptionsTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             run({"origem":"Natal","destino":"Recife","modo":"carro","alternativas":[{"nome":"Rota","paradas":[],"evitar_pedagios":"sim"}]})
 
+    def test_reject_duplicate_route_labels_case_insensitively(self):
+        payload = {"origem": "Natal", "destino": "Recife", "modo": "carro",
+                   "alternativas": [
+                       {"nome": "Rota A", "paradas": []},
+                       {"nome": " rota a ", "paradas": ["João Pessoa"]},
+                   ]}
+        with self.assertRaisesRegex(ValueError, "repetido"):
+            run(payload)
+
+    def test_reject_more_than_25_alternatives(self):
+        payload = {"origem": "Natal", "destino": "Recife", "modo": "carro",
+                   "alternativas": [{"nome": str(i), "paradas": []} for i in range(26)]}
+        with self.assertRaisesRegex(ValueError, "25"):
+            run(payload)
+
+    def test_preserve_labels_and_order_for_distinct_routes(self):
+        payload = {"origem": "Natal", "destino": "Recife", "modo": "carro",
+                   "alternativas": [{"nome": "  Norte ", "paradas": []},
+                                    {"nome": "Sul", "paradas": []}]}
+        self.assertEqual([route["nome"] for route in run(payload)["rotas"]], ["Norte", "Sul"])
+
+
 if __name__ == "__main__": unittest.main()
