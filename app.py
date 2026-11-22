@@ -13,6 +13,8 @@ def texto(value):
 def textos(items):
     if not isinstance(items, list):
         raise ValueError("Use uma lista de textos.")
+    if len(items) > 3:
+        raise ValueError("Use até 3 paradas por rota.")
     return [texto(item) for item in items]
 
 
