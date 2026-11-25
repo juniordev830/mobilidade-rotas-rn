@@ -48,3 +48,8 @@ cat exemplo.json | python app.py -
 As alternativas devem ter nomes distintos (ignorando maiúsculas/minúsculas e espaços nas bordas). O programa aceita de 1 a 25 opções por consulta e preserva a ordem informada.
 
 Arquivos e entrada padrão JSON são limitados a 1 MB (1.000.000 bytes). Entradas maiores são rejeitadas antes da decodificação e da geração de URLs.
+
+
+## Novo recurso
+
+Com `diagnostico: true`, exibe quantidade de alternativas e paradas cadastradas por modo. Os links existentes são preservados; não calcula distância ou trânsito em tempo real.

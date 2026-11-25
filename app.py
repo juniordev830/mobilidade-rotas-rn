@@ -57,6 +57,7 @@ def run(data):
     modo_padrao = data.get("modo")
     links = []
     nomes = set()
+    resumo = {}
     for opcao in alternativas:
         nome = texto(opcao["nome"])
         chave = nome.casefold()
@@ -67,11 +68,21 @@ def run(data):
         if type(evitar) is not bool:
             raise ValueError("evitar_pedagios precisa ser verdadeiro ou falso.")
         modo = texto(opcao.get("modo", modo_padrao))
-        url = rota(data["origem"], data["destino"], modo, textos(opcao["paradas"]), evitar)
+        paradas = textos(opcao["paradas"])
+        url = rota(data["origem"], data["destino"], modo, paradas, evitar)
+        grupo = resumo.setdefault(modo, {"alternativas": 0, "paradas": 0})
+        grupo["alternativas"] += 1
+        grupo["paradas"] += len(paradas)
         links.append({"nome": nome, "google_maps": url})
     if not links:
         raise ValueError("Cadastre pelo menos uma rota.")
-    return {"rotas": links, "quantidade": len(links)}
+    resultado = {"rotas": links, "quantidade": len(links)}
+    diagnostico = data.get("diagnostico", False)
+    if type(diagnostico) is not bool:
+        raise ValueError("diagnostico deve ser booleano.")
+    if diagnostico:
+        resultado["resumo_por_modo"] = resumo
+    return resultado
 
 
 import argparse
