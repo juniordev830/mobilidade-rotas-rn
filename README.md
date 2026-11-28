@@ -1,5 +1,7 @@
 # Rotas alternativas na Grande Natal
 
+**Navegação** · [Rodar](#rodar) · [Uso](#uso) · [Google Maps](#google-maps) · [Código e estudo](docs/ENGENHARIA_REVERSA.md)
+
 Compare links para trajetos com paradas diferentes e abra cada opção no Google Maps.
 
 ## Rodar
@@ -48,3 +50,9 @@ cat exemplo.json | python app.py -
 As alternativas devem ter nomes distintos (ignorando maiúsculas/minúsculas e espaços nas bordas). O programa aceita de 1 a 25 opções por consulta e preserva a ordem informada.
 
 Arquivos e entrada padrão JSON são limitados a 1 MB (1.000.000 bytes). Entradas maiores são rejeitadas antes da decodificação e da geração de URLs.
+
+## Código e roteiro de estudo
+
+Qual é a diferença entre construir um link com paradas e calcular a duração de um trajeto? O [guia de engenharia reversa](docs/ENGENHARIA_REVERSA.md) reúne o mapa dos módulos e uma pergunta técnica baseada no projeto.
+
+Mantido por [João Junior](https://github.com/juniordev830).
